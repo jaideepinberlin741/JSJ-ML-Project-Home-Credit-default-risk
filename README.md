@@ -1,1 +1,63 @@
-# JSJ-ML-Project-Home-Credit-default-risk
+# Home Credit Default Risk: Prediction Model
+
+**Project Status:** In Progress 🚧
+
+This repository contains the work for building a machine learning model to predict the probability of a client defaulting on a loan, based on the Kaggle competition ["Home Credit Default Risk"](https://www.kaggle.com/c/home-credit-default-risk).
+
+## 1. Problem Statement
+
+> How can we accurately predict a loan applicant's repayment ability using alternative data sources, in order to broaden financial inclusion for the unbanked and ensure they have a positive, safe borrowing experience?
+
+### Business Value
+A successful model will enable Home Credit to provide loans more safely and effectively to a broader population, including those with limited or non-existent credit histories. This helps unlock financial services for underserved communities while managing business risk.
+
+## 2. Success Metrics
+
+### ML Metric
+The primary evaluation metric for this project is **Area Under the Receiver Operating Characteristic Curve (ROC-AUC)**. This metric is well-suited for this binary classification problem as it measures the model's ability to correctly distinguish between clients who will repay and those who will default, independent of the class imbalance.
+
+### Product Metric
+Success will be measured by the model's ability to **increase the number of approved loans for capable applicants** (i.e., reduce false negatives) while keeping the default rate (false positives) at an acceptable level.
+
+## 3. Dataset
+
+The data is provided by Home Credit and is available on the [Kaggle competition page](https://www.kaggle.com/c/home-credit-default-risk/data). It comprises multiple files containing information about applicants' past and present financial behavior.
+
+*   **`application_{train|test}.csv`**: Main table with information about each loan application.
+*   **`bureau.csv`**: Information about applicants' previous credits from other financial institutions.
+*   **`previous_application.csv`**: Information about applicants' prior loans with Home Credit.
+*   *(...and others, which will be documented as they are explored.)*
+
+## 4. Project Structure
+├── data/ │ ├── raw/ # Raw, immutable data from Kaggle │ └── processed/ # Cleaned and preprocessed data ├── notebooks/ # Jupyter notebooks for EDA and experimentation ├── scripts/ │ ├── data_processing.py │ └── train_model.py ├── src/ # Source code for the project ├── README.md # This file! └── requirements.txt # Project dependencies
+
+
+## 5. Getting Started (double check)
+
+### Prerequisites
+*   Python 3.8+ (Less,, like our previous notebooks)
+*   Poetry (or pip) for dependency management
+
+### Installation
+
+1.  **Clone the repository:**
+    ```sh
+    git clone [YOUR_REPOSITORY_URL]
+    cd [YOUR_REPOSITORY_NAME]
+    ```
+
+2.  **Set up the environment and install dependencies:**
+    ```sh
+    # Using Poetry
+    poetry install
+
+    # Or using pip
+    pip install -r requirements.txt
+    ```
+
+3.  **Download the data:**
+    Place the raw data files from Kaggle into the `data/raw/` directory.
+
+## 6. Usage
+
+*(This section will be updated with instructions on how to run the data processing and model training scripts.)*
