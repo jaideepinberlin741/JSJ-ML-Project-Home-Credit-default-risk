@@ -32,7 +32,7 @@ The data is provided by Home Credit and is available on the [Kaggle competition 
 ├── data/ │ ├── raw/ # Raw, immutable data from Kaggle │ └── processed/ # Cleaned and preprocessed data ├── notebooks/ # Jupyter notebooks for EDA and experimentation ├── scripts/ │ ├── data_processing.py │ └── train_model.py ├── src/ # Source code for the project ├── README.md # This file! └── requirements.txt # Project dependencies
 
 
-## 5. Getting Started (double check)
+## 5. Getting Started
 
 ### Prerequisites
 *   Python 3.8+ (Less,, like our previous notebooks)
