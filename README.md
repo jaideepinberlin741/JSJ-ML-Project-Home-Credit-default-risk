@@ -84,7 +84,6 @@ The added [requirements file](requirements.txt) contains all libraries and depen
     pip install -r requirements.txt
     ```
 
-
 *Note: If there are errors during environment setup, try removing the versions from the failing packages in the requirements file.*
 
 
