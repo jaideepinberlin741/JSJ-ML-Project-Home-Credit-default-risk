@@ -212,3 +212,10 @@ data/*.tsv
 data/*.zip
 data/*.gsv
 data/*.json
+
+#data/raw
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.zip
+data/raw/*.gsv
+data/raw/*.json
