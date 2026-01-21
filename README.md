@@ -40,6 +40,34 @@ Success will be measured by the model's ability to **increase the number of appr
 
 ## 3. Dataset
 
+### Source
+This project uses the Home Credit Default Risk dataset from Kaggle. The data is provided by Home Credit, a financial services company, and contains real, anonymized information about their loan applicants.
+
+### Overview
+The objective is to use historical loan application data to predict the probability that a client will default on a loan. The dataset is unique because it includes not only demographic and financial information from the loan application itself but also extensive alternative data sources, such as transactional history and credit history from other institutions.
+
+### Data Structure
+The data is spread across several tables, linked by a common identifier (SK_ID_CURR).
+
+**Main Table (application_train/test.csv):**
+
+Contains one row per loan application.
+Includes applicant demographics, financial information, loan details, and external credit scores.
+This table contains the **TARGET** variable for training:
+1 → The client defaulted on the loan.
+0 → The loan was repaid.
+**Auxiliary Tables:** These tables provide historical data and have a **one-to-many relationship** with the main application data. They are crucial for feature engineering.
+
+* bureau.csv & bureau_balance.csv: Data from other credit bureaus.
+* previous_application.csv: History of the client's previous loans with Home Credit.
+* POS_CASH_balance.csv: Monthly balance snapshots of previous point-of-sale or cash loans.
+* credit_card_balance.csv: Monthly balance snapshots for credit cards.
+* installments_payments.csv: Repayment history for previous loans.
+
+### Key Characteristics & Challenges
+* **High Imbalance:** The dataset is highly imbalanced, with a small percentage of loans resulting in a default. This is a key challenge that will influence model training and evaluation.
+* **Feature Engineering:** The rich, multi-table structure means that significant feature engineering—primarily through the aggregation of historical data—is required to create a useful feature set for the model.
+
 This project uses the **Home Credit Default Risk** dataset from Kaggle, which contains anonymized information about loan applicants and their credit history.
 The objective is to predict whether a client will **default on a loan**.
 
