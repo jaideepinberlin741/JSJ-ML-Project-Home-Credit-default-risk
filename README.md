@@ -21,12 +21,46 @@ Success will be measured by the model's ability to **increase the number of appr
 
 ## 3. Dataset
 
-The data is provided by Home Credit and is available on the [Kaggle competition page](https://www.kaggle.com/c/home-credit-default-risk/data). It comprises multiple files containing information about applicants' past and present financial behavior.
+This project uses the **Home Credit Default Risk** dataset from Kaggle, which contains anonymized information about loan applicants and their credit history.
+The objective is to predict whether a client will **default on a loan**.
 
-*   **`application_{train|test}.csv`**: Main table with information about each loan application.
-*   **`bureau.csv`**: Information about applicants' previous credits from other financial institutions.
-*   **`previous_application.csv`**: Information about applicants' prior loans with Home Credit.
-*   *(...and others, which will be documented as they are explored.)*
+### Main Table
+
+* **application_train.csv / application_test.csv**
+* One row per loan application
+* Contains applicant demographics, financial information, loan details, and external credit scores
+* `TARGET` (train only):
+
+  * `1` → Default
+  * `0` → Repaid
+
+### Auxiliary Tables (Historical Data)
+
+* **bureau.csv / bureau_balance.csv**
+  External credit history and monthly loan status from other financial institutions
+* **previous_application.csv**
+  Previous loan applications with Home Credit
+* **POS_CASH_balance.csv**
+  Monthly history of POS and cash loans
+* **credit_card_balance.csv**
+  Monthly credit card usage history
+* **installments_payments.csv**
+  Detailed repayment and payment delay information
+
+### Relationships
+
+* `SK_ID_CURR` links all tables to the main application data
+* One-to-many relationships require aggregation to applicant-level features
+
+### Key Notes
+
+* Dataset is highly imbalanced (few defaults)
+* Historical repayment behavior is a strong predictor of default risk
+* Feature engineering through aggregation is critical
+* ROC-AUC is used as the primary evaluation metric
+
+**Source:** [Kaggle](https://www.kaggle.com/competitions/home-credit-default-risk/data) – Home Credit Default Risk
+
 
 ## 4. Project Structure
 ├── data/ │ ├── raw/ # Raw, immutable data from Kaggle │ └── processed/ # Cleaned and preprocessed data ├── notebooks/ # Jupyter notebooks for EDA and experimentation ├── scripts/ │ ├── data_processing.py │ └── train_model.py ├── src/ # Source code for the project ├── README.md # This file! └── requirements.txt # Project dependencies
