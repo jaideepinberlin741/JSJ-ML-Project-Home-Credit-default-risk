@@ -13,6 +13,25 @@ A successful model will enable Home Credit to provide loans more safely and effe
 
 ## 2. Success Metrics
 
+### ML Metric: ROC-AUC
+The primary evaluation metric for this project is the Area Under the Receiver Operating Characteristic Curve (ROC-AUC).
+
+* **Justification**: This metric is ideal for this problem for two key reasons:
+
+1. **Handles Class Imbalance**: The dataset is highly imbalanced, with far more repaid loans than defaulted ones. Metrics like accuracy can be misleading, but ROC-AUC provides a reliable measure of the model's ability to distinguish between the two classes regardless of their distribution.
+2. **Measures Discriminatory Power**: It evaluates how well the model ranks predictions, giving a higher probability to a default than to a repayment. This is crucial for the business goal of identifying risky applicants.
+
+* **Success Definition**: The model will be considered successful if it achieves a ROC-AUC score of 0.75 or higher on the holdout test set. This target represents a strong predictive model that provides significant business value.
+
+### Product & Business Metrics
+From a business perspective, the model's value is determined by its impact on lending decisions. This requires balancing the risks of two types of errors:
+
+* False Positives (Predict Repaid, Actual Default): This is the most costly error. It means the bank approves a loan for an applicant who ultimately defaults, resulting in a direct financial loss.
+* False Negatives (Predict Default, Actual Repaid): This represents a missed business opportunity. The bank denies a loan to a capable applicant, losing potential revenue and failing in the mission of financial inclusion.
+
+A successful model will therefore be one that reduces the number of false positives (to minimize financial loss) while also minimizing false negatives (to increase business and serve the unbanked). The specific threshold for approving loans will be determined by balancing these two competing costs.
+
+
 ### ML Metric
 The primary evaluation metric for this project is **Area Under the Receiver Operating Characteristic Curve (ROC-AUC)**. This metric is well-suited for this binary classification problem as it measures the model's ability to correctly distinguish between clients who will repay and those who will default, independent of the class imbalance.
 
@@ -23,6 +42,7 @@ Success will be measured by the model's ability to **increase the number of appr
 
 This project uses the **Home Credit Default Risk** dataset from Kaggle, which contains anonymized information about loan applicants and their credit history.
 The objective is to predict whether a client will **default on a loan**.
+
 
 ### Main Table
 
