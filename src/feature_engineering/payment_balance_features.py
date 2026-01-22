@@ -4,7 +4,7 @@ import numpy as np
 # Installments Payments — Repayment Behavior
 
 # Load dataset
-inst = pd.read_csv("../data/raw/installments_payments.csv")
+inst = pd.read_csv("data/raw/installments_payments.csv")
 
 # Create payment delay feature
 inst["PAYMENT_DELAY"] = inst["DAYS_ENTRY_PAYMENT"] - inst["DAYS_INSTALMENT"]
@@ -22,7 +22,7 @@ inst_agg = inst.groupby("SK_ID_CURR").agg(
 # POS_CASH_balance — Loan Status Patterns
 
 # Load & aggregate POS_CASH_balance data
-pos = pd.read_csv("../data/raw/POS_CASH_balance.csv")
+pos = pd.read_csv("data/raw/POS_CASH_balance.csv")
 pos_agg = pos.groupby("SK_ID_CURR").agg(
     POS_LOAN_COUNT=("SK_ID_PREV", "nunique"),
     POS_AVG_DPD=("SK_DPD", "mean"),
@@ -33,7 +33,7 @@ pos_agg = pos.groupby("SK_ID_CURR").agg(
 # Credit Card Balance — Usage & Risk Signals
 
 # Load & aggregate credit card balance data
-cc = pd.read_csv("../data/raw/credit_card_balance.csv")
+cc = pd.read_csv("data/raw/credit_card_balance.csv")
 cc_agg = cc.groupby("SK_ID_CURR").agg(
     CC_LOAN_COUNT=("SK_ID_PREV", "nunique"),
     CC_AVG_BALANCE=("AMT_BALANCE", "mean"),
@@ -49,7 +49,7 @@ payment_features = payment_features.merge(cc_agg, on="SK_ID_CURR", how="left")
 assert payment_features["SK_ID_CURR"].is_unique
 
 # Save Output
-payment_features.to_csv("../data/processed/payment_balance_features.csv", index=False)
+payment_features.to_csv("data/processed/payment_balance_features.csv", index=False)
 
 ## Payment & Balance Feature Engineering
 

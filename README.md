@@ -169,8 +169,37 @@ The added [requirements file](requirements.txt) contains all libraries and depen
 *Note: If there are errors during environment setup, try removing the versions from the failing packages in the requirements file.*
 
 
-3.  **Download the data:**
-    Place the raw data files from Kaggle into the `data/raw/` directory.
+3.  **DData Setup**
+
+⚠️ Important: The dataset for this project is too large to be stored directly in GitHub. To run the notebooks, you must first download the data.
+
+You have two options to get the data:
+
+**Option A:** Use the Original Raw Data from Kaggle
+
+This option is for those who want to run the entire data processing pipeline from scratch.
+
+Download the data from the Kaggle competition page.
+Place all the raw .csv files into the data/raw/ directory.
+
+**Option B:** Use the Pre-processed Dataset (Recommended for Quick Start)
+
+This is the fastest way to get started with the modeling portion of the project.
+
+Download the pre-processed data from our shared Google Drive folder: ➡️ https://drive.google.com/drive/folders/1sF8oaBiNfejXVH303rNFqUEFYP85arG0?usp=drive_link
+
+Place the downloaded file(s) into the data/processed/ directory.
+After setting up the data, your project's file structure should look like this:
+
+├── data/
+│   ├── raw/
+│   │   ├── application_train.csv
+│   │   └── ... (other raw files if you chose Option A)
+│   └── processed/
+│       └── ... (your pre-processed data file if you chose Option B)
+├── notebooks/
+├── src/
+└── README.md
 
 ## 6. Usage
 
