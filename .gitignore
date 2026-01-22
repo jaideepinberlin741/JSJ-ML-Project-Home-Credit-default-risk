@@ -219,3 +219,6 @@ data/raw/*.tsv
 data/raw/*.zip
 data/raw/*.gsv
 data/raw/*.json
+
+#data/processed
+data/processed/*.csv
