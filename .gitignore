@@ -222,3 +222,7 @@ data/raw/*.json
 
 #data/processed
 data/processed/*.csv
+data/processed/*.tsv
+data/processed/*.zip
+data/processed/*.gsv
+data/processed/*.json
