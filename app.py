@@ -183,37 +183,161 @@ def load_model():
     return None
 
 @st.cache_data
-def load_feature_data():
-    """Load feature data to get column names and compute medians/modes"""
+def load_feature_data(model):
+    """Get feature names from model and create feature structure without CSV"""
     try:
-        df = pd.read_csv('data/processed/final_train_features.csv')
-        # Remove ID and target columns
-        feature_df = df.drop(['SK_ID_CURR', 'TARGET'], axis=1)
+        # Get feature names from the LightGBM model
+        # LightGBM models store feature names in different ways
+        feature_names = None
         
-        # Get unique values for categorical columns
-        categorical_values = {}
-        categorical_cols = feature_df.select_dtypes(include=['object']).columns
-        for col in categorical_cols:
-            categorical_values[col] = sorted(feature_df[col].dropna().unique().tolist())
+        if hasattr(model, 'feature_name'):
+            try:
+                feature_names = model.feature_name()
+            except:
+                pass
         
-        return feature_df, df, categorical_values
+        if not feature_names and hasattr(model, 'feature_name_'):
+            feature_names = model.feature_name_
+        
+        if not feature_names and hasattr(model, 'model') and hasattr(model.model, 'feature_name'):
+            try:
+                feature_names = model.model.feature_name()
+            except:
+                pass
+        
+        # Fallback: use the feature names we know from the model file
+        if not feature_names:
+            feature_names = [
+                'NAME_CONTRACT_TYPE', 'CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY', 'CNT_CHILDREN',
+                'AMT_INCOME_TOTAL', 'AMT_CREDIT', 'AMT_ANNUITY', 'AMT_GOODS_PRICE', 'NAME_TYPE_SUITE',
+                'NAME_INCOME_TYPE', 'NAME_EDUCATION_TYPE', 'NAME_FAMILY_STATUS', 'NAME_HOUSING_TYPE',
+                'REGION_POPULATION_RELATIVE', 'DAYS_BIRTH', 'DAYS_EMPLOYED', 'DAYS_REGISTRATION',
+                'DAYS_ID_PUBLISH', 'FLAG_MOBIL', 'FLAG_EMP_PHONE', 'FLAG_WORK_PHONE', 'FLAG_CONT_MOBILE',
+                'FLAG_PHONE', 'FLAG_EMAIL', 'OCCUPATION_TYPE', 'CNT_FAM_MEMBERS', 'REGION_RATING_CLIENT',
+                'REGION_RATING_CLIENT_W_CITY', 'WEEKDAY_APPR_PROCESS_START', 'HOUR_APPR_PROCESS_START',
+                'REG_REGION_NOT_LIVE_REGION', 'REG_REGION_NOT_WORK_REGION', 'LIVE_REGION_NOT_WORK_REGION',
+                'REG_CITY_NOT_LIVE_CITY', 'REG_CITY_NOT_WORK_CITY', 'LIVE_CITY_NOT_WORK_CITY',
+                'ORGANIZATION_TYPE', 'EXT_SOURCE_2', 'EXT_SOURCE_3', 'OBS_30_CNT_SOCIAL_CIRCLE',
+                'DEF_30_CNT_SOCIAL_CIRCLE', 'OBS_60_CNT_SOCIAL_CIRCLE', 'DEF_60_CNT_SOCIAL_CIRCLE',
+                'DAYS_LAST_PHONE_CHANGE', 'FLAG_DOCUMENT_2', 'FLAG_DOCUMENT_3', 'FLAG_DOCUMENT_4',
+                'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8',
+                'FLAG_DOCUMENT_9', 'FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_12',
+                'FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14', 'FLAG_DOCUMENT_15', 'FLAG_DOCUMENT_16',
+                'FLAG_DOCUMENT_17', 'FLAG_DOCUMENT_18', 'FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20',
+                'FLAG_DOCUMENT_21', 'AMT_REQ_CREDIT_BUREAU_HOUR', 'AMT_REQ_CREDIT_BUREAU_DAY',
+                'AMT_REQ_CREDIT_BUREAU_WEEK', 'AMT_REQ_CREDIT_BUREAU_MON', 'AMT_REQ_CREDIT_BUREAU_QRT',
+                'AMT_REQ_CREDIT_BUREAU_YEAR', 'BUREAU_CREDIT_COUNT', 'BUREAU_CREDIT_SUM_MEAN',
+                'BUREAU_CREDIT_SUM_SUM', 'BUREAU_CREDIT_SUM_MAX', 'BUREAU_CREDIT_SUM_MIN',
+                'BUREAU_DEBT_SUM', 'BUREAU_DEBT_MEAN', 'BUREAU_DEBT_MAX', 'BUREAU_OVERDUE_MAX',
+                'BUREAU_OVERDUE_MEAN', 'BUREAU_DAYS_OVERDUE_MAX', 'BUREAU_DAYS_CREDIT_MEAN',
+                'BUREAU_DAYS_CREDIT_MIN', 'BUREAU_DAYS_CREDIT_MAX', 'BUREAU_PROLONG_SUM',
+                'BUREAU_ANNUITY_MEAN', 'BUREAU_ANNUITY_SUM', 'BUREAU_ACTIVE', 'BUREAU_BAD_DEBT',
+                'BUREAU_CLOSED', 'BUREAU_SOLD', 'BUREAU_DEBT_CREDIT_RATIO', 'BUREAU_ACTIVE_RATIO',
+                'PREV_APP_COUNT', 'PREV_CREDIT_MEAN', 'PREV_CREDIT_SUM', 'PREV_CREDIT_MAX',
+                'PREV_CREDIT_MIN', 'PREV_APPLICATION_MEAN', 'PREV_APPLICATION_SUM', 'PREV_ANNUITY_MEAN',
+                'PREV_ANNUITY_MAX', 'PREV_DOWN_PAYMENT_MEAN', 'PREV_DOWN_PAYMENT_MAX',
+                'PREV_CNT_PAYMENT_MEAN', 'PREV_CNT_PAYMENT_SUM', 'PREV_APPROVED', 'PREV_CANCELED',
+                'PREV_REFUSED', 'PREV_UNUSED_OFFER', 'PREV_TYPE_CASH_LOANS', 'PREV_TYPE_CONSUMER_LOANS',
+                'PREV_TYPE_REVOLVING_LOANS', 'PREV_TYPE_XNA', 'PREV_APPROVAL_RATIO', 'PREV_REFUSED_RATIO',
+                'PREV_CREDIT_APPLICATION_RATIO', 'INST_COUNT', 'LATE_PAYMENT_RATE', 'AVG_PAYMENT_DELAY',
+                'MAX_PAYMENT_DELAY', 'TOTAL_PAID', 'POS_LOAN_COUNT', 'POS_AVG_DPD', 'POS_MAX_DPD',
+                'POS_AVG_DPD_DEF', 'CC_LOAN_COUNT', 'CC_AVG_BALANCE', 'CC_MAX_BALANCE', 'CC_AVG_DPD', 'CC_MAX_DPD'
+            ]
+        
+        if not feature_names:
+            st.error("Could not extract feature names from model")
+            return None, None, None
+        
+        # Create a DataFrame structure with feature names
+        feature_df = pd.DataFrame(columns=feature_names)
+        
+        # Define known categorical columns (from the model structure)
+        known_categorical = [
+            'NAME_CONTRACT_TYPE', 'CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',
+            'NAME_TYPE_SUITE', 'NAME_INCOME_TYPE', 'NAME_EDUCATION_TYPE',
+            'NAME_FAMILY_STATUS', 'NAME_HOUSING_TYPE', 'OCCUPATION_TYPE',
+            'WEEKDAY_APPR_PROCESS_START', 'ORGANIZATION_TYPE',
+            'FONDKAPREMONT_MODE', 'HOUSETYPE_MODE', 'WALLSMATERIAL_MODE', 'EMERGENCYSTATE_MODE'
+        ]
+        
+        # Get categorical values (common values for dropdowns)
+        categorical_values = {
+            'NAME_EDUCATION_TYPE': [
+                'Higher education',
+                'Secondary / secondary special',
+                'Incomplete higher',
+                'Lower secondary',
+                'Academic degree'
+            ],
+            'ORGANIZATION_TYPE': [
+                'Business Entity Type 3',
+                'Self-employed',
+                'Government',
+                'Other',
+                'Business Entity Type 2',
+                'Business Entity Type 1'
+            ],
+            'CODE_GENDER': ['M', 'F'],
+            'NAME_CONTRACT_TYPE': ['Cash loans', 'Revolving loans'],
+            'FLAG_OWN_CAR': ['Y', 'N'],
+            'FLAG_OWN_REALTY': ['Y', 'N']
+        }
+        
+        # Add any other categorical columns with empty lists (will use mode later)
+        for col in known_categorical:
+            if col not in categorical_values and col in feature_names:
+                categorical_values[col] = []
+        
+        return feature_df, None, categorical_values
     except Exception as e:
-        st.error(f"Error loading feature data: {e}")
+        st.error(f"Error setting up feature data: {e}")
         return None, None, None
 
 def compute_default_values(feature_df):
-    """Compute median for numeric and mode for categorical features"""
+    """Compute default values for features (without CSV, use reasonable defaults)"""
     defaults = {}
     
-    numeric_cols = feature_df.select_dtypes(include=[np.number]).columns
-    categorical_cols = feature_df.select_dtypes(include=['object']).columns
+    # Known categorical columns
+    categorical_cols = [
+        'NAME_CONTRACT_TYPE', 'CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',
+        'NAME_TYPE_SUITE', 'NAME_INCOME_TYPE', 'NAME_EDUCATION_TYPE',
+        'NAME_FAMILY_STATUS', 'NAME_HOUSING_TYPE', 'OCCUPATION_TYPE',
+        'WEEKDAY_APPR_PROCESS_START', 'ORGANIZATION_TYPE',
+        'FONDKAPREMONT_MODE', 'HOUSETYPE_MODE', 'WALLSMATERIAL_MODE', 'EMERGENCYSTATE_MODE'
+    ]
     
-    for col in numeric_cols:
-        defaults[col] = feature_df[col].median()
-    
-    for col in categorical_cols:
-        mode_val = feature_df[col].mode()
-        defaults[col] = mode_val[0] if len(mode_val) > 0 else feature_df[col].iloc[0]
+    # Set defaults for all features
+    for col in feature_df.columns:
+        if col in categorical_cols:
+            # Use common default values for categorical
+            if col == 'CODE_GENDER':
+                defaults[col] = 'M'
+            elif col == 'NAME_EDUCATION_TYPE':
+                defaults[col] = 'Higher education'
+            elif col == 'ORGANIZATION_TYPE':
+                defaults[col] = 'Business Entity Type 3'
+            elif col == 'NAME_CONTRACT_TYPE':
+                defaults[col] = 'Cash loans'
+            elif col in ['FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
+                defaults[col] = 'N'
+            else:
+                defaults[col] = 'XNA'  # Common missing value indicator
+        else:
+            # Use reasonable defaults for numeric features
+            if 'AMT' in col:
+                defaults[col] = 0.0
+            elif 'DAYS' in col:
+                defaults[col] = -1000.0  # Typical negative days value
+            elif 'CNT' in col or 'COUNT' in col:
+                defaults[col] = 0.0
+            elif 'RATIO' in col or 'RATE' in col:
+                defaults[col] = 0.0
+            elif 'EXT_SOURCE' in col:
+                defaults[col] = 0.5  # Normalized score, middle value
+            elif col.startswith('FLAG_'):
+                defaults[col] = 0.0
+            else:
+                defaults[col] = 0.0  # Default to 0 for unknown numeric
     
     return defaults
 
@@ -326,12 +450,17 @@ def main():
         threshold_decimal = threshold / 100.0
         st.info(f"**Current threshold:** {threshold}%\n\nApplications with risk score **< {threshold}%** will be **APPROVED**")
     
-    # Load model and feature data
+    # Load model first
     model = load_model()
-    feature_df, full_df, categorical_values = load_feature_data()
+    if model is None:
+        st.error("Failed to load model. Please check file paths.")
+        return
     
-    if model is None or feature_df is None or categorical_values is None:
-        st.error("Failed to load model or feature data. Please check file paths.")
+    # Load feature data (now uses model to get feature names)
+    feature_df, full_df, categorical_values = load_feature_data(model)
+    
+    if feature_df is None or categorical_values is None:
+        st.error("Failed to set up feature data.")
         return
     
     # Compute default values
