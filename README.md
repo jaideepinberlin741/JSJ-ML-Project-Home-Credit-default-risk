@@ -1,206 +1,210 @@
-# Home Credit Default Risk: Prediction Model
+# Home Credit Default Risk — Machine Learning Project
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+![Jupyter](https://img.shields.io/badge/Notebook-Jupyter-orange?logo=jupyter)
+![LightGBM](https://img.shields.io/badge/Model-LightGBM-success?logo=leaflet)
+![Explainability](https://img.shields.io/badge/Explainability-SHAP-purple)
+![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
+![Kaggle](https://img.shields.io/badge/Kaggle-Competition-blue?logo=kaggle)
 
-**Project Status:** In Progress 🚧
+**Project Status:** In Progress 🚧  
+A complete end‑to‑end machine learning pipeline for predicting loan default risk using the Kaggle **Home Credit Default Risk** dataset.  
+The project combines data engineering, modeling, explainability, and business reasoning to support safer and more inclusive lending decisions.
 
-This repository contains the work for building a machine learning model to predict the probability of a client defaulting on a loan, based on the Kaggle competition ["Home Credit Default Risk"](https://www.kaggle.com/c/home-credit-default-risk).
+---
 
 ## 1. Problem Statement
 
-> How can we accurately predict a loan applicant's repayment ability using alternative data sources, in order to broaden financial inclusion for the unbanked and ensure they have a positive, safe borrowing experience?
+> How can we accurately predict a loan applicant’s repayment ability using alternative data sources, in order to broaden financial inclusion while managing lending risk?
 
-### Business Value
-A successful model will enable Home Credit to provide loans more safely and effectively to a broader population, including those with limited or non-existent credit histories. This helps unlock financial services for underserved communities while managing business risk.
+Home Credit aims to serve clients with limited or no credit history. Traditional credit scoring often fails these applicants, leading to unnecessary rejections and missed opportunities.  
+This project builds a predictive model that estimates default probability using rich behavioral and financial data.
+
+---
 
 ## 2. Success Metrics
 
-### ML Metric: ROC-AUC
-The primary evaluation metric for this project is the Area Under the Receiver Operating Characteristic Curve (ROC-AUC).
+### ML Metric — ROC‑AUC
+Chosen because it:
+- Handles **class imbalance** effectively  
+- Measures **ranking ability**, not just classification  
+- Reflects how well the model separates risky vs safe applicants  
 
-* **Justification**: This metric is ideal for this problem for two key reasons:
+**Success Criterion:**  
+A model is considered successful if it achieves **ROC‑AUC ≥ 0.75** on the holdout test set.
 
-1. **Handles Class Imbalance**: The dataset is highly imbalanced, with far more repaid loans than defaulted ones. Metrics like accuracy can be misleading, but ROC-AUC provides a reliable measure of the model's ability to distinguish between the two classes regardless of their distribution.
-2. **Measures Discriminatory Power**: It evaluates how well the model ranks predictions, giving a higher probability to a default than to a repayment. This is crucial for the business goal of identifying risky applicants.
+### Business Metrics
+Two error types matter:
 
-* **Success Definition**: The model will be considered successful if it achieves a ROC-AUC score of 0.75 or higher on the holdout test set. This target represents a strong predictive model that provides significant business value.
+- **False Positive (Predict Repaid → Actually Default)**  
+  → Most costly: leads to financial loss.
 
-### Product & Business Metrics
-From a business perspective, the model's value is determined by its impact on lending decisions. This requires balancing the risks of two types of errors:
+- **False Negative (Predict Default → Actually Repaid)**  
+  → Missed opportunity: reduces revenue and harms financial inclusion.
 
-* False Positives (Predict Repaid, Actual Default): This is the most costly error. It means the bank approves a loan for an applicant who ultimately defaults, resulting in a direct financial loss.
-* False Negatives (Predict Default, Actual Repaid): This represents a missed business opportunity. The bank denies a loan to a capable applicant, losing potential revenue and failing in the mission of financial inclusion.
+A good model minimizes both, with the final threshold chosen based on business trade‑offs.
 
-A successful model will therefore be one that reduces the number of false positives (to minimize financial loss) while also minimizing false negatives (to increase business and serve the unbanked). The specific threshold for approving loans will be determined by balancing these two competing costs.
+---
 
+## 3. Dataset Overview
 
-### ML Metric
-The primary evaluation metric for this project is **Area Under the Receiver Operating Characteristic Curve (ROC-AUC)**. This metric is well-suited for this binary classification problem as it measures the model's ability to correctly distinguish between clients who will repay and those who will default, independent of the class imbalance.
-
-### Product Metric
-Success will be measured by the model's ability to **increase the number of approved loans for capable applicants** (i.e., reduce false negatives) while keeping the default rate (false positives) at an acceptable level.
-
-## 3. Dataset
-
-### Source
-This project uses the Home Credit Default Risk dataset from Kaggle. The data is provided by Home Credit, a financial services company, and contains real, anonymized information about their loan applicants.
-
-### Overview
-The objective is to use historical loan application data to predict the probability that a client will default on a loan. The dataset is unique because it includes not only demographic and financial information from the loan application itself but also extensive alternative data sources, such as transactional history and credit history from other institutions.
-
-### Data Structure
-The data is spread across several tables, linked by a common identifier (SK_ID_CURR).
-
-**Main Table (application_train/test.csv):**
-
-Contains one row per loan application.
-Includes applicant demographics, financial information, loan details, and external credit scores.
-This table contains the **TARGET** variable for training:
-1 → The client defaulted on the loan.
-0 → The loan was repaid.
-**Auxiliary Tables:** These tables provide historical data and have a **one-to-many relationship** with the main application data. They are crucial for feature engineering.
-
-* bureau.csv & bureau_balance.csv: Data from other credit bureaus.
-* previous_application.csv: History of the client's previous loans with Home Credit.
-* POS_CASH_balance.csv: Monthly balance snapshots of previous point-of-sale or cash loans.
-* credit_card_balance.csv: Monthly balance snapshots for credit cards.
-* installments_payments.csv: Repayment history for previous loans.
-
-### Key Characteristics & Challenges
-* **High Imbalance:** The dataset is highly imbalanced, with a small percentage of loans resulting in a default. This is a key challenge that will influence model training and evaluation.
-* **Feature Engineering:** The rich, multi-table structure means that significant feature engineering—primarily through the aggregation of historical data—is required to create a useful feature set for the model.
-
-This project uses the **Home Credit Default Risk** dataset from Kaggle, which contains anonymized information about loan applicants and their credit history.
-The objective is to predict whether a client will **default on a loan**.
-
+Source: Kaggle — *Home Credit Default Risk*  
+The dataset includes demographic, financial, and behavioral data across multiple relational tables.
 
 ### Main Table
+`application_train.csv` / `application_test.csv`  
+- One row per loan application  
+- Contains demographics, income, credit amounts, loan details  
+- `TARGET`:  
+  - `1` → Default  
+  - `0` → Repaid  
 
-* **application_train.csv / application_test.csv**
-* One row per loan application
-* Contains applicant demographics, financial information, loan details, and external credit scores
-* `TARGET` (train only):
+### Auxiliary Tables
+Used for feature engineering (one‑to‑many relationships):
 
-  * `1` → Default
-  * `0` → Repaid
+- `bureau.csv`, `bureau_balance.csv` — external credit history  
+- `previous_application.csv` — past Home Credit loans  
+- `POS_CASH_balance.csv` — POS/cash loan history  
+- `credit_card_balance.csv` — credit card usage  
+- `installments_payments.csv` — repayment behavior  
 
-### Auxiliary Tables (Historical Data)
+### Key Challenges
+- Highly imbalanced dataset  
+- Heavy feature engineering required  
+- Multiple relational tables requiring aggregation  
 
-* **bureau.csv / bureau_balance.csv**
-  External credit history and monthly loan status from other financial institutions
-* **previous_application.csv**
-  Previous loan applications with Home Credit
-* **POS_CASH_balance.csv**
-  Monthly history of POS and cash loans
-* **credit_card_balance.csv**
-  Monthly credit card usage history
-* **installments_payments.csv**
-  Detailed repayment and payment delay information
-
-### Relationships
-
-* `SK_ID_CURR` links all tables to the main application data
-* One-to-many relationships require aggregation to applicant-level features
-
-### Key Notes
-
-* Dataset is highly imbalanced (few defaults)
-* Historical repayment behavior is a strong predictor of default risk
-* Feature engineering through aggregation is critical
-* ROC-AUC is used as the primary evaluation metric
-
-**Source:** [Kaggle](https://www.kaggle.com/competitions/home-credit-default-risk/data) – Home Credit Default Risk
-
+---
 
 ## 4. Project Structure
-├── data/ │ ├── raw/ # Raw, immutable data from Kaggle │ └── processed/ # Cleaned and preprocessed data ├── notebooks/ # Jupyter notebooks for EDA and experimentation ├── scripts/ │ ├── data_processing.py │ └── train_model.py ├── src/ # Source code for the project ├── README.md # This file! └── requirements.txt # Project dependencies
 
+```
+JSJ-ML-Project-Home-Credit-default-risk/
+│
+├── data/
+│   ├── raw/          # Raw Kaggle data (ignored in Git)
+│   └── processed/    # Preprocessed datasets
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_feature_engineering.ipynb
+│   ├── 03_preprocessing.ipynb
+│   ├── 04_lightgbm_model.ipynb
+│   ├── 05_shap_explainability.ipynb
+│   ├── 06_threshold_analysis.ipynb
+│   └── 07_submission.ipynb
+│
+├── models/           # Saved model files (e.g., lightgbm_model.pkl)
+├── submissions/      # Kaggle submission files
+├── src/              # Optional scripts
+├── requirements.txt
+└── README.md
+```
+
+---
 
 ## 5. Getting Started
 
 ### Prerequisites
-*   Python 3.8+ (Less,, like our previous notebooks)
-*   Poetry (or pip) for dependency management
+- Python 3.11.3  
+- `pip` or Poetry  
+- `pyenv` (optional but recommended)
+
+---
 
 ### Installation
 
-1.  **Clone the repository:**
-    ```sh
-    git clone [YOUR_REPOSITORY_URL]
-    cd [YOUR_REPOSITORY_NAME]
-    ```
+#### macOS
+```bash
+pyenv local 3.11.3
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-2.  **Set up the environment and install dependencies:**
+#### Windows (PowerShell)
+```powershell
+pyenv local 3.11.3
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-The added [requirements file](requirements.txt) contains all libraries and dependencies we need to execute the notebooks.
+---
 
-### **`macOS`** type the following commands : 
+## 6. Data Setup
 
-- Install the virtual environment and the required packages by following commands:
+⚠️ **Important:** The dataset is too large for GitHub.  
+You must download it manually.
 
-    ```BASH
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
-### **`WindowsOS`** type the following commands :
+### Option A — Raw Kaggle Data (Full Pipeline)
+Download from Kaggle and place all `.csv` files into:
 
-- Install the virtual environment and the required packages by following commands.
+```
+data/raw/
+```
 
-   For `PowerShell` CLI :
+### Option B — Preprocessed Data (Recommended)
+Download from Google Drive:  
+https://drive.google.com/drive/folders/1sF8oaBiNfejXVH303rNFqUEFYP85arG0?usp=drive_link
 
-    ```PowerShell
-    pyenv local 3.11.3
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+Place files into:
 
-    For `Git-Bash` CLI :
-    ```
-    pyenv local 3.11.3
-    python -m venv .venv
-    source .venv/Scripts/activate
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    ```
+```
+data/processed/
+```
 
-*Note: If there are errors during environment setup, try removing the versions from the failing packages in the requirements file.*
+---
 
+## 7. Usage
 
-3.  **DData Setup**
+Run the notebooks in the following order:
 
-⚠️ Important: The dataset for this project is too large to be stored directly in GitHub. To run the notebooks, you must first download the data.
+1. `01_eda.ipynb` — Exploratory data analysis  
+2. `02_feature_engineering.ipynb` — Aggregations and feature creation  
+3. `03_preprocessing.ipynb` — Cleaning, encoding, and preparing the dataset  
+4. `04_lightgbm_model.ipynb` — Training the LightGBM model  
+5. `05_shap_explainability.ipynb` — SHAP global and local interpretability  
+6. `06_threshold_analysis.ipynb` — Business-driven threshold selection  
+7. `07_submission.ipynb` — Generate final predictions for Kaggle submission  
 
-You have two options to get the data:
+Model outputs are saved in:
 
-**Option A:** Use the Original Raw Data from Kaggle
+```
+models/lightgbm_model.pkl
+```
 
-This option is for those who want to run the entire data processing pipeline from scratch.
+---
 
-Download the data from the Kaggle competition page.
-Place all the raw .csv files into the data/raw/ directory.
+## 8. Roadmap
 
-**Option B:** Use the Pre-processed Dataset (Recommended for Quick Start)
+### Phase 1 — Problem Framing
+Define business context, personas, metrics, constraints.
 
-This is the fastest way to get started with the modeling portion of the project.
+### Phase 2 — Data Understanding
+EDA, missing values, correlations, class imbalance.
 
-Download the pre-processed data from our shared Google Drive folder: ➡️ https://drive.google.com/drive/folders/1sF8oaBiNfejXVH303rNFqUEFYP85arG0?usp=drive_link
+### Phase 3 — Feature Engineering
+Aggregations, ratios, domain‑inspired features.
 
-Place the downloaded file(s) into the data/processed/ directory.
-After setting up the data, your project's file structure should look like this:
+### Phase 4 — Modeling
+Baseline → LightGBM → tuning → evaluation.
 
-├── data/
-│   ├── raw/
-│   │   ├── application_train.csv
-│   │   └── ... (other raw files if you chose Option A)
-│   └── processed/
-│       └── ... (your pre-processed data file if you chose Option B)
-├── notebooks/
-├── src/
-└── README.md
+### Phase 5 — Explainability
+SHAP analysis, risk threshold exploration.
 
-## 6. Usage
+### Phase 6 — Delivery
+Save model, generate submission, finalize documentation.
 
-*(This section will be updated with instructions on how to run the data processing and model training scripts.)*
+---
+
+## 9. Future Improvements
+- Hyperparameter tuning  
+- Threshold optimization  
+- Model deployment pipeline  
+- Fairness analysis  
+- Automated reporting  
+```
+
+---
+
