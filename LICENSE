@@ -1,0 +1,14 @@
+## License
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+## Authors
+- **Jaideep** – [GitHub Profile](https://github.com/jaideepinberlin741)
+- Additional contributors listed in the repository history.
+
+## Model Performance (to be updated)
+Final performance metrics will be added after evaluation.  
+See `06_threshold_analysis.ipynb` for ongoing work.
+
+## Explainability
+SHAP is used to interpret model predictions and ensure transparency and fairness.  
+See `07_shap_explainability.ipynb` for details.

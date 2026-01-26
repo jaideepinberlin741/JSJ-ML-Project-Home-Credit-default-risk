@@ -206,5 +206,19 @@ Save model, generate submission, finalize documentation.
 - Automated reporting  
 ```
 
+## Future Improvements
+...
+
+## Contributors
+This project was developed as part of a team assignment for the Data Science program.  
+Contributions were made by our team across data exploration, modeling, and documentation.
+
+- **Jaideep** – https://github.com/jaideepinberlin741/
+- **Sumit** – https://github.com/summyhug
+- **Jolanda** – https://github.com/joolanda
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
 ---
 
