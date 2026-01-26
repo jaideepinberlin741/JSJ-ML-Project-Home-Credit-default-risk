@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
 ![Kaggle](https://img.shields.io/badge/Kaggle-Competition-blue?logo=kaggle)
 
-**Project Status:** In Progress 🚧  
+**Project Description 🚧  
 A complete end‑to‑end machine learning pipeline for predicting loan default risk using the Kaggle **Home Credit Default Risk** dataset.  
 The project combines data engineering, modeling, explainability, and business reasoning to support safer and more inclusive lending decisions.
 
@@ -105,7 +105,7 @@ JSJ-ML-Project-Home-Credit-default-risk/
 
 ### Prerequisites
 - Python 3.11.3  
-- `pip` or Poetry  
+- `pip`
 - `pyenv` (optional but recommended)
 
 ---
